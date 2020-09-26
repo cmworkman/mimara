@@ -1,7 +1,7 @@
 package controllers
 
 import javax.inject._
-import models.Person
+import models.{SubmitRequest, ProcessMara}
 import play.api._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
@@ -19,8 +19,11 @@ class MaraController @Inject()(val controllerComponents: ControllerComponents) e
   def submit = Action { implicit request =>
 
     val json = request.body.asJson.get
-    implicit val residentReads = Json.reads[Person]
-    val person = json.as[Person]
-    Ok("name : " + person.name)
+    implicit val residentReads = Json.reads[SubmitRequest]
+    val reqObj = json.as[SubmitRequest]
+
+    val result = new ProcessMara().submit(reqObj)
+
+    Ok("resutlt : " + result)
   }
 }
