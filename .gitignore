@@ -43,3 +43,7 @@ server.pid
 *.eml
 /dist/
 .cache
+
+# MARA
+*.jar
+MaraFiles

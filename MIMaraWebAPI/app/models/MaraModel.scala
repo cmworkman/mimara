@@ -15,11 +15,13 @@ import java.util
 import java.sql.Date
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import scala.jdk.CollectionConverters._
+//import scala.jdk.CollectionConverters._
+import scala.collection.JavaConversions._
+import scala.collection.mutable.Seq
 
 
 case class SubmitRequest(
-  modelType: String,
+  modelType: String
 )
 
 class ProcessMara {
@@ -31,6 +33,7 @@ class ProcessMara {
   private def getModelToRun(model: String) = {
     model match {
       case "COMXPLN" => "CxXPLNCon,CxXPLNPro,DxXPLNCon,DxXPLNPro,RxXPLNCon,RxXPLNPro,AsXPLNCon,AsXPLNPro"
+      case "COMXPLNXPRX" => "CxXPLNCon"
       case "COMOPTML" => "CxOPTMLCon,CxOPTMLPro,DxOPTMLCon,DxOPTMLPro,RxOPTMLCon,RxOPTMLPrO"
       case "MDCRXPLN" => "MCRCxXPLNCon,MCRDxXPLNCon,MCRRxXPLNCon,MCRCxXPLNPro,MCRDxXPLNPro,MCRRxXPLNPro,MCRAsXPLNPro,MCRAsXPLNCon"
       case "MDCROPTML" => "MCRCxOPTmlCon,MCRDxOPTmlCon,MCRRxOPTmlCon,MCRCxOPTmlPro,MCRDxOPTmlPro,MCRRxOPTmlPro"
@@ -41,8 +44,8 @@ class ProcessMara {
   private def init(model: String) = {
     val bp = new BatchProperties()
     bp.setDateFormat("MM/dd/yyyy")
-    bp.setLicenseFileLocation(s"${MARA_FILES_PATH}/mara.lic")
-    bp.setMaraAppFolderLocation(s"${MARA_FILES_PATH}/MaraData/")
+    bp.setLicenseFileLocation(s"${MARA_FILES_PATH}/License/mara.lic")
+    bp.setMaraAppFolderLocation(s"${MARA_FILES_PATH}/Data/")
     bp.setApplyPriorCostProspective(false)
     bp.setOutputPercentContributions(false)
     bp.setModelList(model)
@@ -60,8 +63,6 @@ class ProcessMara {
     val modelToRun = getModelToRun(maraRequest.modelType)
     val initResult = init(modelToRun)
     process()
-
-    8
   }
 
   private def process() = {
@@ -120,13 +121,29 @@ class ProcessMara {
 
     val modelDataMap = outputResultSet.getOutputModelDataMap
 
-    modelDataMap.entrySet().forEach(entry => {
+    var scores = collection.mutable.MutableList[String]()
+    var score = 0.0
+
+    for (entry <- modelDataMap.entrySet) {
       val outputModelScore = entry.getValue.getOutputModelScore
       val modelName = entry.getKey
 
       val totScore = outputModelScore.getTotScore
       System.out.println(modelName + " Total: " + totScore)
-    })
+      scores += s"modelName: ${modelName}, total:  ${totScore}"
+      score = totScore
+    }
+
+    scores.reduce((a, b) => a + b)
+    //score
+
+//    modelDataMap.entrySet().forEach(entry => {
+//      val outputModelScore = entry.getValue.getOutputModelScore
+//      val modelName = entry.getKey
+//
+//      val totScore = outputModelScore.getTotScore
+//      System.out.println(modelName + " Total: " + totScore)
+//    })
   }
 
 }
