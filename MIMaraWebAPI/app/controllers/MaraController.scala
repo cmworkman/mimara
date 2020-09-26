@@ -6,12 +6,8 @@ import play.api._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 
-/**
- * This controller creates an `Action` to handle HTTP requests to the
- * application's home page.
- */
 @Singleton
-class HomeController @Inject()(val controllerComponents: ControllerComponents) extends BaseController {
+class MaraController @Inject()(val controllerComponents: ControllerComponents) extends BaseController {
 
   /**
    * Create an Action to render an HTML page.
@@ -20,7 +16,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
    * will be called when the application receives a `GET` request with
    * a path of `/`.
    */
-  def index = Action { implicit request =>
+  def submit = Action { implicit request =>
 
     val json = request.body.asJson.get
     implicit val residentReads = Json.reads[Person]
